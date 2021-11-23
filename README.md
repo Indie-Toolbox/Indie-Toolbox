@@ -4,7 +4,7 @@ Tool Launcher and List of tools for the Indie Toolbox
 ## Tool Restrictions
 
 ### Visual Restrictions (If your Tool has a Visual User Interface)
--   Tools must enable changing the theme according to a standardized theme format. (See: [[Restrictions#Theme File Spec]])
+-   Tools must enable changing the theme according to a standardized theme format. (See: [[Theme File Spec]])
 
 -   Some standard action keys should be: `Ctrl+C` for copy, `Ctrl+V` for paste, `Ctrl+X` for cut, `Ctrl+Z` for undo and `Ctrl+Y` for redo - if their underlying functions are used in the program
 
