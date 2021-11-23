@@ -14,6 +14,8 @@ Tool Launcher and list of tools for the Indie Toolbox
 
 -   Tools must be startable via CLI and offer opening files doing so, if the Tool has a related file format (e.g. `tool “path/to/file.ext”`)
 
+-   Opening a tool with `--theme=”path/to/file”` should open the tool with the given theme file
+
 ### ![](https://github.com/Indie-Toolbox/Indie-Toolbox/blob/main/ToolBoxIcon3.png?raw=true) Systematic Restrictions
 -   Tools must offer a public build/release
 -   Tools must be offered/released under MIT license
