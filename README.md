@@ -1,6 +1,6 @@
 ![](https://github.com/Indie-Toolbox/Indie-Toolbox/blob/main/ToolBoxIcon3_400.png?raw=true)
 # Indie-Toolbox
-Tool Launcher and List of tools for the Indie Toolbox
+Tool Launcher and list of tools for the Indie Toolbox
 
 ## Tool Restrictions
 
@@ -10,7 +10,7 @@ Tool Launcher and List of tools for the Indie Toolbox
 -   Some standard action keys should be: `Ctrl+C` for copy, `Ctrl+V` for paste, `Ctrl+X` for cut, `Ctrl+Z` for undo and `Ctrl+Y` for redo - if their underlying functions are used in the program
 
 ### ![](https://github.com/Indie-Toolbox/Indie-Toolbox/blob/main/ToolBoxIcon3.png?raw=true) CLI Restrictions
--   CLI must offer a help command, preferable as `--help` and `-?`
+-   CLI must offer a help command, preferably as `--help` and `-?`
 
 -   Tools must be startable via CLI and offer opening files doing so, if the Tool has a related file format (e.g. `tool “path/to/file.ext”`)
 
@@ -19,11 +19,11 @@ Tool Launcher and List of tools for the Indie Toolbox
 -   Tools must be offered/released under MIT license
 
 ### ![](https://github.com/Indie-Toolbox/Indie-Toolbox/blob/main/ToolBoxIcon3.png?raw=true) Theme File Spec
--   File Consists of key: value pairs separated by newlines…. yes. that’s it
+-   File consists of `key:value pairs` separated by newlines in any order…. yes. that’s it
     
--   Colors specified with `0xRRGGBBAA`
+-   Colors are specified with `0xRRGGBBAA`
     
--   The Currently Specified Keys are:  
+-   The currently required keys are:  
 ```yaml
 background1: 0xRRGGBBAA
 background2: 0xRRGGBBAA
