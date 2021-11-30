@@ -8,7 +8,7 @@ in vec2 v_UiDims;
 
 uniform sampler2D u_TextureSlots[8];
 
-const float smoothness = 0.002;
+const float smoothness = 0.5;
 
 float roundCorners() {
 	vec2 pixelPos = v_TexCoord * vec2(v_UiDims.x, v_UiDims.y);

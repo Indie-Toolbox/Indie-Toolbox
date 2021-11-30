@@ -1,6 +1,10 @@
 package com.toolbox.render;
 
+import com.toolbox.font.TTFont;
 import com.toolbox.util.Rect;
+import org.joml.Vector4f;
+import org.lwjgl.stb.STBTTBakedChar;
+import org.lwjgl.stb.STBTTPackedchar;
 
 import java.util.ArrayList;
 
@@ -23,23 +27,50 @@ public class Renderer {
 	}
 
 	public void drawQuad(Quad q) {
+		drawQuad(q, Texture.White);
+	}
+
+	public void drawQuad(Quad q, Texture texture) {
 		boolean submitted = false;
 		for (int i = 0; i < curr_bucket_index; i++) {
 			RenderBucket bucket = buckets.get(i);
 			if (bucket.isFullCuzTextures) {
-				if (bucket.textures.contains(Texture.White)) {
-					bucket.submitQuad(new Rect(q.pos, q.size), new Rect(q.uvs, q.uvs_size), q.color, q.rounding, Texture.White);
+				if (bucket.textures.contains(texture)) {
+					bucket.submitQuad(new Rect(q.pos, q.size), new Rect(q.uvs, q.uvs_size), q.color, q.rounding, texture);
 					submitted = true;
 					break;
 				}
 			}
 		}
 		if (!submitted)
-			buckets.get(curr_bucket_index).submitQuad(new Rect(q.pos, q.size), new Rect(q.uvs, q.uvs_size), q.color, q.rounding, Texture.White);
+			buckets.get(curr_bucket_index).submitQuad(new Rect(q.pos, q.size), new Rect(q.uvs, q.uvs_size), q.color, q.rounding, texture);
 		if (!buckets.get(curr_bucket_index).hasRoom) {
 			curr_bucket_index++;
 			if (curr_bucket_index >= buckets.size())
 				buckets.add(new RenderBucket());
+		}
+	}
+
+
+	public void drawString(TTFont font, String s, float x, float y, Vector4f color) {
+
+		for (int i = 0; i < s.length(); i++) {
+			if (s.charAt(i) >= 32 && s.charAt(i) < 128) {
+				STBTTPackedchar info = font.cdata.get(s.charAt(i) - 32);
+				Quad q = new Quad();
+				q.color = color;
+				q.pos.x = x + info.xoff();
+				q.pos.y = y + info.yoff();
+				q.size.x = info.xoff2() - info.xoff();
+				q.size.y = info.yoff2() - info.yoff();
+				q.uvs.x = (info.x0()) / 512.f;
+				q.uvs.y = (info.y0()) / 512.f;
+				q.uvs_size.x = (info.x1() - info.x0()) / 512.f;
+				q.uvs_size.y = (info.y1() - info.y0()) / 512.f;
+				q.rounding = 0;
+				drawQuad(q, font.texture);
+				x += info.xadvance();
+			}
 		}
 	}
 

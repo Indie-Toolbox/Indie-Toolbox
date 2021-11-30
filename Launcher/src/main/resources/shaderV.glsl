@@ -7,6 +7,8 @@ layout (location = 3) in float a_TexIndex;
 layout (location = 4) in float a_Rounding;
 layout (location = 5) in vec2 a_UiDims;
 
+uniform mat4 u_Projection;
+
 out vec4 v_Colour;
 out vec2 v_TexCoord;
 out float v_TexIndex;
@@ -14,7 +16,7 @@ out float v_Rounding;
 out vec2 v_UiDims;
 
 void main() {
-	gl_Position = vec4(a_Position, 0.0, 1.0);
+	gl_Position = u_Projection * vec4(a_Position, 0.0, 1.0);
 	v_Colour = a_Colour;
 	v_TexCoord = a_TexCoord;
 	v_TexIndex = a_TexIndex;
