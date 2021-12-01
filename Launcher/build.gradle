@@ -47,7 +47,9 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-openal::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
+
     implementation "org.joml:joml:${jomlVersion}"
+    implementation "com.googlecode.json-simple:json-simple:1.1"
 }
 
 jar {

@@ -8,7 +8,7 @@ in vec2 v_UiDims;
 
 uniform sampler2D u_TextureSlots[8];
 
-const float smoothness = 0.5;
+const float smoothness = 1;
 
 float roundCorners() {
 	vec2 pixelPos = v_TexCoord * vec2(v_UiDims.x, v_UiDims.y);
@@ -19,14 +19,7 @@ float roundCorners() {
 	float lowerBound = (v_Rounding - smoothness);
 	float upperBound = (v_Rounding + smoothness);
 
-	float ppxmin = 1.0 - step(minCorner.x, pixelPos.x);
-	float ppxmax = 1.0 - step(pixelPos.x, maxCorner.x);
-	float ppymin = 1.0 - step(minCorner.y, pixelPos.y);
-	float ppymax = 1.0 - step(pixelPos.y, maxCorner.y);
-
-	float boolean = step(1, (ppxmin + ppxmax) * (ppymin + ppymax));
-	float cornerAlpha = 1.0 - smoothstep(lowerBound, upperBound, distance(pixelPos, cornerPoint));
-	return boolean * cornerAlpha + (1. - boolean);
+	return 1.0 - smoothstep(lowerBound, upperBound, distance(pixelPos, cornerPoint));
 }
 
 void main() {

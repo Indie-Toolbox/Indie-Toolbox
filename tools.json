@@ -1,0 +1,13 @@
+[
+  {
+    "name": "p5pj",
+    "version": "0b1.0.0",
+    "title": "P5.js Project Manager",
+    "description": "A simple and easy to use boilerplate code generator for p5.js",
+    "git": "https://github.com/pricter/p5pj",
+    "supportedPlatforms": [
+      "Windows",
+      "Linux"
+    ]
+  }
+]
