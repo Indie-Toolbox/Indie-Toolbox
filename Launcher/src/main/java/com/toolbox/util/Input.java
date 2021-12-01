@@ -3,15 +3,12 @@ package com.toolbox.util;
 import org.joml.Vector2f;
 import org.lwjgl.system.MemoryStack;
 
-import java.awt.*;
 import java.nio.DoubleBuffer;
 import java.util.Arrays;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Input {
-	private static long window;
-
 	public static Vector2f mouse;
 	public static long mouseX = 0;
 	public static long mouseY = 0;
@@ -23,10 +20,10 @@ public class Input {
 	public static float scrollY = 0;
 	public static boolean[] mouseButton = new boolean[3];
 	public static boolean mouseDragged;
+	public static byte[] keystateBitfields;
+	private static long window;
 	private static int _button;
 	private static int _action;
-
-	public static byte[] keystateBitfields;
 
 	static {
 		keystateBitfields = new byte[400];
@@ -80,39 +77,67 @@ public class Input {
 		});
 	}
 
-	private static void setKeyDownBit(int keycode) { keystateBitfields[keycode] |= 0b00000001; }
-	private static void resetKeyDownBit(int keycode) { keystateBitfields[keycode] &= 0b11111110; }
-	private static void setKeyUpBit(int keycode) { keystateBitfields[keycode] |= 0b00000010; }
-	private static void resetKeyUpBit(int keycode) { keystateBitfields[keycode] &= 0b11111101; }
-	private static void setKeyHeldBit(int keycode) { keystateBitfields[keycode] |= 0b00000100; }
-	private static void resetKeyHeldBit(int keycode) { keystateBitfields[keycode] &= 0b11111011; }
+	private static void setKeyDownBit(int keycode) {
+		keystateBitfields[keycode] |= 0b00000001;
+	}
 
-	public static boolean key(int keycode) { return glfwGetKey(Input.window, keycode) != GLFW_RELEASE; }
-	public static boolean keyDown(int keycode) { return ((keystateBitfields[keycode] & 0b00000001) /*>> 0*/) != 0; }
-	public static boolean keyUp(int keycode) { return ((keystateBitfields[keycode] & 0b00000010) >> 1) != 0; }
-	public static boolean keyHeld(int keycode) { return ((keystateBitfields[keycode] & 0b00000100) >> 2) != 0; }
+	private static void resetKeyDownBit(int keycode) {
+		keystateBitfields[keycode] &= 0b11111110;
+	}
+
+	private static void setKeyUpBit(int keycode) {
+		keystateBitfields[keycode] |= 0b00000010;
+	}
+
+	private static void resetKeyUpBit(int keycode) {
+		keystateBitfields[keycode] &= 0b11111101;
+	}
+
+	private static void setKeyHeldBit(int keycode) {
+		keystateBitfields[keycode] |= 0b00000100;
+	}
+
+	private static void resetKeyHeldBit(int keycode) {
+		keystateBitfields[keycode] &= 0b11111011;
+	}
+
+	public static boolean key(int keycode) {
+		return glfwGetKey(Input.window, keycode) != GLFW_RELEASE;
+	}
+
+	public static boolean keyDown(int keycode) {
+		return ((keystateBitfields[keycode] & 0b00000001) /*>> 0*/) != 0;
+	}
+
+	public static boolean keyUp(int keycode) {
+		return ((keystateBitfields[keycode] & 0b00000010) >> 1) != 0;
+	}
+
+	public static boolean keyHeld(int keycode) {
+		return ((keystateBitfields[keycode] & 0b00000100) >> 2) != 0;
+	}
 
 	public static void update() {
-//		try (MemoryStack stack = MemoryStack.stackPush()) {
-//			DoubleBuffer x = stack.doubles(0);
-//			DoubleBuffer y = stack.doubles(0);
-//
-//			glfwGetCursorPos(window, x, y);
-//			x.rewind();
-//			y.rewind();
-//
-//			long pmouseX = mouseX;
-//			long pmouseY = mouseY;
-//			pmouse = new Vector2f(pmouseX, pmouseY);
-//
-//			mouseX = (long) x.get();
-//			mouseY = (long) y.get();
-//			mouse = new Vector2f(mouseX, mouseY);
-//
-//			if (mouseX != pmouseX || mouseY != pmouseY) {
-//				mouseDragged = mouseButton[0] || mouseButton[1] || mouseButton[2];
-//			}
-//		}
+		try (MemoryStack stack = MemoryStack.stackPush()) {
+			DoubleBuffer x = stack.doubles(0);
+			DoubleBuffer y = stack.doubles(0);
+
+			glfwGetCursorPos(window, x, y);
+			x.rewind();
+			y.rewind();
+
+			long pmouseX = mouseX;
+			long pmouseY = mouseY;
+			pmouse = new Vector2f(pmouseX, pmouseY);
+
+			mouseX = (long) x.get();
+			mouseY = (long) y.get();
+			mouse = new Vector2f(mouseX, mouseY);
+
+			if (mouseX != pmouseX || mouseY != pmouseY) {
+				mouseDragged = mouseButton[0] || mouseButton[1] || mouseButton[2];
+			}
+		}
 	}
 
 	public static boolean mouseButtonDown(int button) {
