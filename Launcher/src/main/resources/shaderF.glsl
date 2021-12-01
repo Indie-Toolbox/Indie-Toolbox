@@ -19,7 +19,14 @@ float roundCorners() {
 	float lowerBound = (v_Rounding - smoothness);
 	float upperBound = (v_Rounding + smoothness);
 
-	return 1.0 - smoothstep(lowerBound, upperBound, distance(pixelPos, cornerPoint));
+	float ppxmin = 1.0 - step(minCorner.x, pixelPos.x);
+	float ppxmax = 1.0 - step(pixelPos.x, maxCorner.x);
+	float ppymin = 1.0 - step(minCorner.y, pixelPos.y);
+	float ppymax = 1.0 - step(pixelPos.y, maxCorner.y);
+
+	float boolean = step(1, (ppxmin + ppxmax) * (ppymin + ppymax));
+	float cornerAlpha = 1.0 - smoothstep(lowerBound, upperBound, distance(pixelPos, cornerPoint));
+	return boolean * cornerAlpha + (1. - boolean);
 }
 
 void main() {
