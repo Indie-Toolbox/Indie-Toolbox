@@ -60,7 +60,7 @@ public class Texture {
 		this.boundslot = -1;
 	}
 
-	public static void InitTextures() {
+	public static void initializeTextures() {
 		White = new Texture("src/main/resources/white.png");
 	}
 

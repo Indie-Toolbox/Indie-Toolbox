@@ -5,20 +5,15 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Tools {
-
 	public static final List<ToolDescription> tools = new ArrayList<>();
 
-	static {
+	public static void load(String src) {
 		try {
 			JSONParser parser = new JSONParser();
-			String src = Files.readString(Path.of("src/main/resources/projects.json"));
 			JSONArray obj = (JSONArray)parser.parse(src);
 			for (Object tool_obj : obj) {
 				ToolDescription toolDescription = new ToolDescription();
@@ -36,7 +31,7 @@ public class Tools {
 				plats.toArray(toolDescription.platforms);
 				tools.add(toolDescription);
 			}
-		} catch (IOException | ParseException e) {
+		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 	}
