@@ -1,7 +1,7 @@
 [
   {
     "name": "p5pj",
-    "version": "0b1.0.0",
+    "version": "0b1.0.1",
     "title": "P5.js Project Manager",
     "description": "A simple and easy to use boilerplate code generator for p5.js",
     "git": "https://github.com/pricter/p5pj",
@@ -10,12 +10,12 @@
       "Linux"
     ],
     "run": {
-      "Windows": "python C:/toolbox/p5pj/p5pj.py",
-      "Linux": "python3 usr/toolbox/p5pj/p5pj.py"
+      "Windows": "python C:/toolbox/p5pj/p5pj-windows.py",
+      "Linux": "python3 usr/toolbox/p5pj/p5pj-linux.py"
     },
     "file": {
-      "Windows": "WHATEVER.BLAH",
-      "Linux": "WHATEVER.BLAH"
+      "Windows": "p5pj-windows.py",
+      "Linux": "p5pj-linux.py"
     }
   }
 ]
