@@ -11,10 +11,7 @@ import com.toolbox.util.OsUtil;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,25 +37,56 @@ public class LaunchToolbox {
 		GLState.enableAlphaBlending();
 
 		List<ToolDescription> installed = new ArrayList<>();
-		BufferedReader tools_reader = null;
-		if (!useLocal) {
-			URL url = new URL("https://raw.githubusercontent.com/Indie-Toolbox/Indie-Toolbox/main/tools.json");
-			tools_reader = new BufferedReader(new InputStreamReader(url.openStream()));
-		} else {
-			tools_reader = new BufferedReader(new FileReader("P:/Java/Projects/ToolboxLauncher/tools.json"));
-		}
 
-		StringBuilder stringBuilder = new StringBuilder();
-		String inputLine;
-		while ((inputLine = tools_reader.readLine()) != null) {
-			stringBuilder.append(inputLine);
-			stringBuilder.append(System.lineSeparator());
+		try {
+			BufferedReader tools_reader = null;
+			if (!useLocal) {
+				URL url = new URL("https://raw.githubusercontent.com/Indie-Toolbox/Indie-Toolbox/main/tools.json");
+				tools_reader = new BufferedReader(new InputStreamReader(url.openStream()));
+			} else {
+				tools_reader = new BufferedReader(new FileReader("P:/Java/Projects/ToolboxLauncher/tools.json"));
+			}
+
+			File out_f = new File(OsUtil.getToolboxFilepath() + "tool_list_cache.json");
+			System.out.println(out_f);
+			out_f.getParentFile().mkdirs();
+			BufferedWriter output_file = new BufferedWriter(new FileWriter(out_f));
+
+			StringBuilder stringBuilder = new StringBuilder();
+			String inputLine;
+			while ((inputLine = tools_reader.readLine()) != null) {
+				stringBuilder
+						.append(inputLine)
+						.append(System.lineSeparator());
+			}
+			String content = stringBuilder.toString();
+			output_file.write(content);
+
+			tools_reader.close();
+			output_file.close();
+
+			Tools.load(content);
+		} catch (IOException e) {
+			// Use cache if exists
+			File in_f = new File(OsUtil.getToolboxFilepath() + "tool_list_cache.json");
+			BufferedReader input = new BufferedReader(new FileReader(in_f));
+
+			StringBuilder stringBuilder = new StringBuilder();
+			String line = null;
+			while ((line = input.readLine()) != null) {
+				stringBuilder
+						.append(line)
+						.append(System.lineSeparator());
+			}
+			String content = stringBuilder.toString();
+
+			input.close();
+
+			Tools.load(content);
 		}
-		tools_reader.close();
-		Tools.load(stringBuilder.toString());
 
 		if (!OsUtil.installedToolsFileExists()) {
-			FileWriter writer = OsUtil.openInstalledToolsFile();
+			BufferedWriter writer = OsUtil.openInstalledToolsFile();
 			writer.close();
 		} else {
 			BufferedReader reader = new BufferedReader(OsUtil.openInstalledToolsFileRead());
@@ -66,11 +94,11 @@ public class LaunchToolbox {
 				String line;
 				StringBuilder contentBuilder = new StringBuilder();
 				while ((line = reader.readLine()) != null) {
-					contentBuilder.append(line);
+					contentBuilder.append(line).append(System.lineSeparator());
 				}
 				reader.close();
 				String content = contentBuilder.toString();
-				String[] installed_f = content.split("\n");
+				String[] installed_f = content.split(System.lineSeparator());
 				String[] names = new String[installed_f.length];
 				String[] versions = new String[installed_f.length];
 				for (int i = 0, installed_fLength = installed_f.length; i < installed_fLength; i++) {

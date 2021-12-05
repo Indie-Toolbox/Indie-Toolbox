@@ -1,8 +1,6 @@
 package com.toolbox.util;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,13 +35,13 @@ public class OsUtil {
 				path = Paths.get("C:/toolbox/toollist.txt");
 			}
 			case Linux -> {
-				path = Paths.get("/usr/toolbox/toollist.txt");
+				path = Paths.get("/opt/toolbox/toollist.txt");
 			}
 		}
 		return Files.exists(path);
 	}
 
-	public static FileWriter openInstalledToolsFile() throws Exception {
+	public static BufferedWriter openInstalledToolsFile() throws Exception {
 		OS os = getOS();
 		String path = null;
 		switch (os) {
@@ -56,7 +54,47 @@ public class OsUtil {
 		}
 		File file = new File(path);
 		file.getParentFile().mkdirs();
-		return new FileWriter(file);
+		BufferedWriter writer = null;
+		if (file.exists()) {
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			String line = null;
+			StringBuilder sb = new StringBuilder();
+			while ((line = reader.readLine()) != null)
+				sb.append(line).append(System.lineSeparator());
+			String prev_content = sb.toString();
+			reader.close();
+			writer = new BufferedWriter(new FileWriter(file));
+			writer.append(prev_content);
+		} else writer = new BufferedWriter(new FileWriter(file));
+		return writer;
+	}
+
+	public static String getDownloadFilepath(String name) throws Exception {
+		OS os = getOS();
+		String path = null;
+		switch (os) {
+			case Windows -> {
+				path = "C:/toolbox/" + name + "/";
+			}
+			case Linux -> {
+				path = "/opt/toolbox/" + name + "/";
+			}
+		}
+		return path;
+	}
+
+	public static String getToolboxFilepath() throws Exception {
+		OS os = getOS();
+		String path = null;
+		switch (os) {
+			case Windows -> {
+				path = "C:/toolbox/";
+			}
+			case Linux -> {
+				path = "/opt/toolbox/";
+			}
+		}
+		return path;
 	}
 
 	public static FileReader openInstalledToolsFileRead() throws Exception {

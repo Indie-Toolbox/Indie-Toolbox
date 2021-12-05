@@ -4,6 +4,7 @@ import com.toolbox.font.TTFont;
 import com.toolbox.render.Quad;
 import com.toolbox.render.Renderer;
 import com.toolbox.util.Input;
+import com.toolbox.util.OsUtil;
 import org.joml.Vector4f;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -11,6 +12,9 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.lwjgl.glfw.GLFW;
 
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +24,9 @@ public class Tools {
 	public static TTFont inconsolata;
 	public static TTFont inconsolata_smaller;
 	private static ToolDescription current;
+
+	private static volatile ToolDescription downloading;
+	private static volatile String prj_name;
 
 	public static void load(String src) {
 		try {
@@ -76,7 +83,23 @@ public class Tools {
 				for (Object p : platforms) plats.add((String) p);
 				toolDescription.platforms = new String[plats.size()];
 				plats.toArray(toolDescription.platforms);
+
+				JSONObject run_commands_platform = (JSONObject) tool.getOrDefault("run", null);
+				toolDescription.run_commands = new String[plats.size()];
+				for (int i = 0; i < toolDescription.platforms.length; i++) {
+					String command = (String) run_commands_platform.getOrDefault(toolDescription.platforms[i], "echo \"No Run Command Specified for tool for this OS\"");
+					toolDescription.run_commands[i] = command;
+				}
+
+				JSONObject filenames_platform = (JSONObject) tool.getOrDefault("file", null);
+				toolDescription.files = new String[plats.size()];
+				for (int i = 0; i < toolDescription.platforms.length; i++) {
+					String filename = (String) filenames_platform.getOrDefault(toolDescription.platforms[i], "echo \"No Run Command Specified for tool for this OS\"");
+					toolDescription.files[i] = filename;
+				}
+
 				tools.add(toolDescription);
+
 				y += 60;
 			}
 		} catch (ParseException e) {
@@ -88,7 +111,76 @@ public class Tools {
 		current = null;
 	}
 
-	public static void render(Renderer renderer, float dt, List<ToolDescription> installed) {
+	private static int getOsIndex(ToolDescription desc, OsUtil.OS os) {
+		String[] platforms = desc.platforms;
+		for (int i = 0, platformsLength = platforms.length; i < platformsLength; i++) {
+			String platform = platforms[i];
+			if (platform.equals(os.name()))
+				return i;
+		}
+		return -1;
+	}
+
+	public static void install(ToolDescription desc, List<ToolDescription> installed_list) throws Exception {
+		if (downloading == null) {
+			int idx = getOsIndex(desc, OsUtil.getOS());
+			if (idx == -1) {
+				// Temporary
+				System.err.println("Tool doesn't support " + OsUtil.getOS().name());
+				return;
+			}
+
+			prj_name = desc.name;
+
+			downloading = desc;
+			// download to file
+			System.out.println("Downloading: " + desc.files[idx]);
+			new Thread(Tools::download).start();
+
+			// write to installed files list
+			BufferedWriter wr = OsUtil.openInstalledToolsFile();
+			wr.append(desc.name).append(':').append(desc.version).append('\n');
+			wr.close();
+			// add to installed
+			installed_list.add(desc);
+		}
+	}
+
+	private static void download() {
+		try {
+			int idx = getOsIndex(downloading, OsUtil.getOS());
+			String url_s = downloading.github_link + "/releases/download/" + downloading.version + "/" + downloading.files[idx];
+
+			URL url = new URL(url_s);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			long file_size = connection.getContentLengthLong();
+			BufferedInputStream input = new BufferedInputStream(connection.getInputStream());
+			File out_f = new File(OsUtil.getDownloadFilepath(prj_name) + downloading.files[idx]);
+			System.out.println(out_f);
+			out_f.getParentFile().mkdirs();
+			FileOutputStream output_file = new FileOutputStream(out_f);
+			BufferedOutputStream output = new BufferedOutputStream(output_file, 1024);
+			byte[] buffer = new byte[1024];
+			double downloaded = 0.0;
+			int read = 0;
+			double downloaded_percentage = 0.0;
+			while ((read = input.read(buffer, 0, 1024)) >= 0) {
+				output.write(buffer, 0, read);
+				downloaded += read;
+				downloaded_percentage = downloaded * 100 / file_size;
+				String s = String.format("%.4f", downloaded_percentage);
+				System.out.println(s);
+			}
+			input.close();
+			output.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		downloading = null;
+		prj_name = null;
+	}
+
+	public static void render(Renderer renderer, float dt, List<ToolDescription> installed) throws Exception {
 		float y = startY;
 		boolean shift_next = false;
 		for (ToolDescription desc : Tools.tools) {
@@ -139,7 +231,7 @@ public class Tools {
 			if (desc.back_quad.testPoint(Input.mouseX, Input.mouseY)) {
 				if (desc.install_quad.testPoint(Input.mouseX, Input.mouseY)) {
 					if (Input.mouseButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
-
+						install(desc, installed);
 					}
 					desc.install_quad.color.set(0.25f, 0.25f, 0.25f, 1.0f);
 					desc.back_quad.color.set(0.15f, 0.15f, 0.15f, 1.0f);
