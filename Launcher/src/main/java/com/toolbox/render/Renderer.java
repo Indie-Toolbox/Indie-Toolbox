@@ -51,9 +51,12 @@ public class Renderer {
 		}
 	}
 
-
 	public void drawString(TTFont font, String s, float x, float y, Vector4f color) {
+		drawString(font, s, x, y, 1080 - 40, color);
+	}
 
+	public void drawString(TTFont font, String s, float x, float y, float wrap_x, Vector4f color) {
+		float sx = x;
 		for (int i = 0; i < s.length(); i++) {
 			if (s.charAt(i) >= 32 && s.charAt(i) < 128) {
 				STBTTPackedchar info = font.cdata.get(s.charAt(i) - 32);
@@ -70,6 +73,10 @@ public class Renderer {
 				q.rounding = 0;
 				drawQuad(q, font.texture);
 				x += info.xadvance();
+				if (x >= wrap_x) {
+					x = sx;
+					y += font.scale * (font.ascent - font.descent);
+				}
 			}
 		}
 	}

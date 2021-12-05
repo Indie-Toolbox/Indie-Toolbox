@@ -1,26 +1,31 @@
 package com.toolbox;
 
-import com.toolbox.font.TTFont;
-import com.toolbox.render.*;
+import com.toolbox.render.GLState;
+import com.toolbox.render.Renderer;
+import com.toolbox.render.Shader;
+import com.toolbox.render.Texture;
 import com.toolbox.tools.ToolDescription;
 import com.toolbox.tools.Tools;
 import com.toolbox.util.Input;
+import com.toolbox.util.OsUtil;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector4f;
 import org.lwjgl.opengl.GL;
 
 import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.*;
 
 public class LaunchToolbox {
-	public static void main(String[] args) {
+	private static final boolean useLocal = true;
+
+	public static void main(String[] args) throws Exception {
 		glfwInit();
 		glfwWindowHint(GLFW_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_VERSION_MINOR, 3);
@@ -34,29 +39,61 @@ public class LaunchToolbox {
 		Texture.initializeTextures();
 		GLState.enableAlphaBlending();
 
-		URL url = null;
-		try {
-			url = new URL("https://raw.githubusercontent.com/Indie-Toolbox/Indie-Toolbox/main/tools.json");
+		List<ToolDescription> installed = new ArrayList<>();
+		BufferedReader tools_reader = null;
+		if (!useLocal) {
+			URL url = new URL("https://raw.githubusercontent.com/Indie-Toolbox/Indie-Toolbox/main/tools.json");
+			tools_reader = new BufferedReader(new InputStreamReader(url.openStream()));
+		} else {
+			tools_reader = new BufferedReader(new FileReader("P:/Java/Projects/ToolboxLauncher/tools.json"));
+		}
 
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
-			StringBuilder stringBuilder = new StringBuilder();
+		StringBuilder stringBuilder = new StringBuilder();
+		String inputLine;
+		while ((inputLine = tools_reader.readLine()) != null) {
+			stringBuilder.append(inputLine);
+			stringBuilder.append(System.lineSeparator());
+		}
+		tools_reader.close();
+		Tools.load(stringBuilder.toString());
 
-			String inputLine;
-			while ((inputLine = bufferedReader.readLine()) != null) {
-				stringBuilder.append(inputLine);
-				stringBuilder.append(System.lineSeparator());
+		if (!OsUtil.installedToolsFileExists()) {
+			FileWriter writer = OsUtil.openInstalledToolsFile();
+			writer.close();
+		} else {
+			BufferedReader reader = new BufferedReader(OsUtil.openInstalledToolsFileRead());
+			if (!OsUtil.installedToolsFileIsEmpty()) {
+				String line;
+				StringBuilder contentBuilder = new StringBuilder();
+				while ((line = reader.readLine()) != null) {
+					contentBuilder.append(line);
+				}
+				reader.close();
+				String content = contentBuilder.toString();
+				String[] installed_f = content.split("\n");
+				String[] names = new String[installed_f.length];
+				String[] versions = new String[installed_f.length];
+				for (int i = 0, installed_fLength = installed_f.length; i < installed_fLength; i++) {
+					String s = installed_f[i];
+					String[] split = s.split(":");
+					names[i] = split[0];
+					versions[i] = split[1];
+				}
+
+				for (ToolDescription d : Tools.tools) {
+					int i = 0;
+					for (String name : names)
+						if (name.equals(d.name)) {
+							ToolDescription td = d.makeClone();
+							td.version = versions[i];
+							installed.add(td);
+						}
+				}
 			}
-
-			bufferedReader.close();
-			Tools.load(stringBuilder.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 
 		Matrix4f proj = new Matrix4f();
 		proj.ortho(0, 1080, 720, 0, -1, 1000);
-
-		TTFont inconsolata = new TTFont("src/main/resources/Inconsolata.ttf", 30);
 
 		Shader shader = new Shader("src/main/resources/shader");
 		shader.bind();
@@ -64,37 +101,25 @@ public class LaunchToolbox {
 		shader.uploadMatrix("u_Projection", proj);
 
 		Renderer renderer = new Renderer();
-		Quad q = new Quad(
-				new Vector2f(0f, 0f),
-				new Vector2f(50, 50.f),
-				new Vector2f(0, 0),
-				new Vector2f(1, 1),
-				new Vector4f(.8f, .2f, .3f, 1.f),
-				10f
-		);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-		boolean show_list = true;
+		double prev = glfwGetTime();
+		double now = glfwGetTime();
+		float delta = (float) (now - prev);
 
 		while (!glfwWindowShouldClose(window)) {
 			Input.clear();
 			glfwPollEvents();
 			Input.update();
 
+			prev = now;
+			now = glfwGetTime();
+			delta = (float) (now - prev);
+
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			if (Input.keyUp(GLFW_KEY_SPACE))
-				show_list = !show_list;
-
 			renderer.immediateBegin();
-
-			if (show_list) {
-				float y = 50;
-				for (ToolDescription desc : Tools.tools) {
-					renderer.drawString(inconsolata, desc.name, 50, y, new Vector4f(.8f, .2f, .3f, 1.f));
-					y += 30;
-				}
-			}
-
+			Tools.render(renderer, delta, installed);
 			renderer.immediateEnd();
 
 			glfwSwapBuffers(window);
