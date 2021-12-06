@@ -166,7 +166,7 @@ public class Tools {
 		Process process = rt.exec("cmd /c start cmd.exe /k \"" + desc.run_commands[idx] + "\"");
 	}
 
-	public static void install(ToolDescription desc, List<ToolDescription> installed_list) throws Exception {
+	public static void install(ToolDescription desc, List<ToolDescription> installed_list, boolean is_update) throws Exception {
 		if (downloading == null) {
 			int idx = getOsIndex(desc, OsUtil.getOS());
 			if (idx == -1) {
@@ -182,12 +182,15 @@ public class Tools {
 			System.out.println("Downloading: " + desc.files[idx]);
 			new Thread(Tools::download).start();
 
-			// write to installed files list
-			BufferedWriter wr = OsUtil.openInstalledToolsFile();
-			wr.append(desc.name).append(':').append(desc.version).append('\n');
-			wr.close();
 			// add to installed
-			installed_list.add(desc);
+			if (!is_update) {
+				installed_list.add(desc);
+			} else {
+				for (ToolDescription td : installed_list) {
+					if (td.name.equals(desc.name))
+						td.set(desc);
+				}
+			}
 		}
 	}
 
@@ -293,7 +296,7 @@ public class Tools {
 				if (desc.install_quad.testPoint(Input.mouseX, Input.mouseY)) {
 					if (Input.mouseButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
 						if (!newest)
-							install(desc, installed);
+							install(desc, installed, older);
 					}
 					if (!newest) {
 						desc.install_quad.color.set(0.25f, 0.25f, 0.25f, 1.0f);

@@ -68,6 +68,8 @@ public class ToolDescription {
 		d.desc = desc;
 		d.github_link = github_link;
 		d.platforms = platforms;
+		d.run_commands = run_commands;
+		d.files = files;
 		return d;
 	}
 
@@ -79,5 +81,16 @@ public class ToolDescription {
 		i_progress_quad.step(dt);
 		i_progress_bg_quad.step(dt);
 		label_ypos += (label_ypos_target - label_ypos) * 20 * dt;
+	}
+
+	public void set(ToolDescription desc) {
+		this.name = desc.name;
+		this.version = desc.version;
+		this.title = desc.title;
+		this.desc = desc.desc;
+		this.github_link = desc.github_link;
+		this.platforms = desc.platforms;
+		this.run_commands = desc.run_commands;
+		this.files = desc.files;
 	}
 }

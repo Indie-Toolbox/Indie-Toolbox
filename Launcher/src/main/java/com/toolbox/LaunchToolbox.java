@@ -154,6 +154,12 @@ public class LaunchToolbox {
 			glfwSwapBuffers(window);
 		}
 
+		for (ToolDescription desc : installed) {
+			BufferedWriter wr = OsUtil.openInstalledToolsFile();
+			wr.append(desc.name).append(':').append(desc.version).append(System.lineSeparator());
+			wr.close();
+		}
+
 		shader.unbind();
 		glfwDestroyWindow(window);
 		glfwTerminate();

@@ -54,18 +54,7 @@ public class OsUtil {
 		}
 		File file = new File(path);
 		file.getParentFile().mkdirs();
-		BufferedWriter writer = null;
-		if (file.exists()) {
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String line = null;
-			StringBuilder sb = new StringBuilder();
-			while ((line = reader.readLine()) != null)
-				sb.append(line).append(System.lineSeparator());
-			String prev_content = sb.toString();
-			reader.close();
-			writer = new BufferedWriter(new FileWriter(file));
-			writer.append(prev_content);
-		} else writer = new BufferedWriter(new FileWriter(file));
+		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 		return writer;
 	}
 
