@@ -195,6 +195,9 @@ public class LaunchToolbox {
 
 			tools_reader.close();
 			output_file.close();
-		} catch (Exception ignored) {}
+		} catch (Exception e) {
+			e.printStackTrace();
+			downloaded_content = "";
+		}
 	}
 }

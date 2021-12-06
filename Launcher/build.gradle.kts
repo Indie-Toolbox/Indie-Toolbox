@@ -9,32 +9,37 @@ repositories {
     mavenCentral()
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_15
+    targetCompatibility = JavaVersion.VERSION_15
+}
+
 val lwjglVersion = "3.3.0"
 val jomlVersion = "1.10.2"
 
 private val lwjglNatives = arrayOf(
-    "linux",
-    "linux-arm64",
-    "linux-arm32",
-    "macos",
-    "macos-arm64",
-    "windows",
-    "windows-arm64",
-    "windows-x86"
+        "linux",
+        "linux-arm64",
+        "linux-arm32",
+        "macos",
+        "macos-arm64",
+        "windows",
+        "windows-arm64",
+        "windows-x86"
 )
 
 fun DependencyHandler.lwjgl(dependency: String) = ArrayList<Dependency>().also { dependencies ->
     if (dependency == "core") {
-        
+
         dependencies += lwjglNatives.map { create("org.lwjgl:lwjgl:$lwjglVersion:natives-$it") }
         dependencies += create("org.lwjgl:lwjgl:$lwjglVersion")
         dependencies += create(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
-        
+
     } else "org.lwjgl:lwjgl-$dependency:$lwjglVersion".let { dependencyNotation ->
-        
+
         dependencies += lwjglNatives.map { create("$dependencyNotation:natives-$it") }
         dependencies += create(dependencyNotation)
-        
+
     }
 }
 
