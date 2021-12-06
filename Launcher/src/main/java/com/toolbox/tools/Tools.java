@@ -30,6 +30,7 @@ public class Tools {
 	private static volatile double downloaded_percentage;
 
 	public static void load(String src) {
+		tools.clear();
 		try {
 			JSONParser parser = new JSONParser();
 			JSONArray obj = (JSONArray) parser.parse(src);
@@ -226,7 +227,7 @@ public class Tools {
 		prj_name = null;
 	}
 
-	public static void render(Renderer renderer, float dt, List<ToolDescription> installed) throws Exception {
+	public static void render(Renderer renderer, float dt, List<ToolDescription> installed, float scroll) throws Exception {
 		float y = startY;
 		boolean shift_next = false;
 		for (ToolDescription desc : Tools.tools) {
@@ -292,8 +293,8 @@ public class Tools {
 			if (!(newest || older))
 				desc.status_quad.color.set(0.8f, 0.2f, 0.3f, 1.0f);
 
-			if (desc.back_quad.testPoint(Input.mouseX, Input.mouseY)) {
-				if (desc.install_quad.testPoint(Input.mouseX, Input.mouseY)) {
+			if (desc.back_quad.testPoint(Input.mouseX, Input.mouseY + scroll)) {
+				if (desc.install_quad.testPoint(Input.mouseX, Input.mouseY + scroll)) {
 					if (Input.mouseButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
 						if (!newest)
 							install(desc, installed, older);
@@ -303,7 +304,7 @@ public class Tools {
 					}
 					desc.back_quad.color.set(0.15f, 0.15f, 0.15f, 1.0f);
 					desc.run_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
-				} else if (desc.run_quad.testPoint(Input.mouseX, Input.mouseY)) {
+				} else if (desc.run_quad.testPoint(Input.mouseX, Input.mouseY + scroll) && (newest || older)) {
 					if (Input.mouseButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
 						if (!(desc == downloading || desc.download_coyote != 0) && (newest || older)) {
 							run(desc);
