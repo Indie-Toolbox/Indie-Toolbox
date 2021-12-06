@@ -20,7 +20,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class LaunchToolbox {
-	private static final boolean useLocal = true;
+	private static final boolean useLocal = false;
 	private static float scroll = 0.000f;
 	private static float scroll_target = 0.000f;
 
@@ -44,27 +44,32 @@ public class LaunchToolbox {
 		List<ToolDescription> installed = new ArrayList<>();
 
 		{
+			boolean set = false;
 			// Use cache if exists
 			File in_f = new File(OsUtil.getToolboxFilepath() + "tool_list_cache.json");
-			BufferedReader input = new BufferedReader(new FileReader(in_f));
+			if (in_f.exists()) {
+				BufferedReader input = new BufferedReader(new FileReader(in_f));
 
-			StringBuilder stringBuilder = new StringBuilder();
-			String line = null;
-			while ((line = input.readLine()) != null) {
-				stringBuilder
-						.append(line)
-						.append(System.lineSeparator());
+				StringBuilder stringBuilder = new StringBuilder();
+				String line = null;
+				while ((line = input.readLine()) != null) {
+					stringBuilder
+							.append(line)
+							.append(System.lineSeparator());
+				}
+				String content = stringBuilder.toString();
+
+				input.close();
+
+				Tools.load(content);
+				set = true;
+			} else {
+				downloadList();
+				Tools.load(downloaded_content);
 			}
-			String content = stringBuilder.toString();
-
-			input.close();
-
-			Tools.load(content);
+			installedToolFileRefresh(installed);
+			if (set) new Thread(LaunchToolbox::downloadList).start();
 		}
-
-		new Thread(LaunchToolbox::downloadList).start();
-
-		installedToolFileRefresh(installed);
 
 		Matrix4f proj = new Matrix4f();
 		proj.ortho(0, 1080, 720, 0, -1, 1000);
