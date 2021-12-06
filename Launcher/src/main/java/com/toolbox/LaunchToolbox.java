@@ -128,7 +128,7 @@ public class LaunchToolbox {
 
 		Matrix4f view = new Matrix4f();
 
-		Shader shader = new Shader("src/main/resources/shader");
+		Shader shader = new Shader("shader");
 		shader.bind();
 		shader.uploadIntArray("u_TextureSlots", new int[]{0, 1, 2, 3, 4, 5, 6, 7});
 

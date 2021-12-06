@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
+import static com.toolbox.font.TTFont.ioResourceToByteBuffer;
+
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.GL_TEXTURE_WRAP_R;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
@@ -61,7 +63,7 @@ public class Texture {
 	}
 
 	public static void initializeTextures() {
-		White = new Texture("src/main/resources/white.png");
+		White = new Texture("white.png");
 	}
 
 	/**
@@ -95,7 +97,20 @@ public class Texture {
 		IntBuffer height = BufferUtils.createIntBuffer(1);
 		IntBuffer channels = BufferUtils.createIntBuffer(1);
 		stbi_set_flip_vertically_on_load(true);
-		ByteBuffer image = stbi_load(filepath, width, height, channels, 0);
+		
+		ByteBuffer fileData = null;
+		try {
+			 fileData = ioResourceToByteBuffer(filepath, 512 * 1024);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		ByteBuffer image;
+		if (fileData != null) {
+			image = stbi_load_from_memory(fileData, width, height, channels, 0);
+		} else {
+			image = stbi_load(filepath, width, height, channels, 0);
+		}
 
 		if (image != null) {
 			this.width = width.get(0);
