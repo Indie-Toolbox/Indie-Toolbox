@@ -21,7 +21,11 @@ public class ToolDescription {
 	public Quad status_quad;
 	public Quad install_quad;
 	public Quad run_quad;
+	public Quad i_progress_quad;
+	public Quad i_progress_bg_quad;
 	public boolean was_pushed = false;
+
+	public int download_coyote = 0;
 
 	public ToolDescription() {}
 
@@ -71,6 +75,9 @@ public class ToolDescription {
 		back_quad.step(dt);
 		status_quad.step(dt);
 		install_quad.step(dt);
+		run_quad.step(dt);
+		i_progress_quad.step(dt);
+		i_progress_bg_quad.step(dt);
 		label_ypos += (label_ypos_target - label_ypos) * 20 * dt;
 	}
 }

@@ -27,6 +27,7 @@ public class Tools {
 
 	private static volatile ToolDescription downloading;
 	private static volatile String prj_name;
+	private static volatile double downloaded_percentage;
 
 	public static void load(String src) {
 		try {
@@ -75,6 +76,42 @@ public class Tools {
 				toolDescription.install_quad.target_size.y = toolDescription.install_quad.size.y;
 				toolDescription.install_quad.rounding = 3;
 
+				toolDescription.i_progress_quad = new Quad();
+				toolDescription.i_progress_quad.pos.x = 1080 - 296;
+				toolDescription.i_progress_quad.pos.y = y - 8;
+				toolDescription.i_progress_quad.size.x = 0; //200;
+				toolDescription.i_progress_quad.size.y = 10;
+				toolDescription.i_progress_quad.target_pos.x = toolDescription.i_progress_quad.pos.x;
+				toolDescription.i_progress_quad.target_pos.y = toolDescription.i_progress_quad.pos.y;
+				toolDescription.i_progress_quad.target_size.x = toolDescription.i_progress_quad.size.x;
+				toolDescription.i_progress_quad.target_size.y = toolDescription.i_progress_quad.size.y;
+				toolDescription.i_progress_quad.color = new Vector4f(.453f, .649f, .276f, 1.f);
+				toolDescription.i_progress_quad.rounding = 2;
+
+				toolDescription.i_progress_bg_quad = new Quad();
+				toolDescription.i_progress_bg_quad.pos.x = 1080 - 300;
+				toolDescription.i_progress_bg_quad.pos.y = y - 10.5f;
+				toolDescription.i_progress_bg_quad.size.x = 208;
+				toolDescription.i_progress_bg_quad.size.y = 16.5f;
+				toolDescription.i_progress_bg_quad.target_pos.x = toolDescription.i_progress_bg_quad.pos.x;
+				toolDescription.i_progress_bg_quad.target_pos.y = toolDescription.i_progress_bg_quad.pos.y;
+				toolDescription.i_progress_bg_quad.target_size.x = toolDescription.i_progress_bg_quad.size.x;
+				toolDescription.i_progress_bg_quad.target_size.y = toolDescription.i_progress_bg_quad.size.y;
+				toolDescription.i_progress_bg_quad.color = new Vector4f(.4f, .4f, .4f, 1.f);
+				toolDescription.i_progress_bg_quad.rounding = 2;
+
+				toolDescription.run_quad = new Quad();
+				toolDescription.run_quad.pos.x = 1080 - 150;
+				toolDescription.run_quad.pos.y = y - 20;
+				toolDescription.run_quad.size.x = 60;
+				toolDescription.run_quad.size.y = 30;
+				toolDescription.run_quad.target_pos.x = toolDescription.run_quad.pos.x;
+				toolDescription.run_quad.target_pos.y = toolDescription.run_quad.pos.y;
+				toolDescription.run_quad.target_size.x = toolDescription.run_quad.size.x;
+				toolDescription.run_quad.target_size.y = toolDescription.run_quad.size.y;
+				toolDescription.run_quad.color = new Vector4f(0.18f, 0.18f, 0.18f, 1.0f);
+				toolDescription.run_quad.rounding = 2;
+
 				toolDescription.label_ypos = y;
 				toolDescription.label_ypos_target = y;
 
@@ -121,6 +158,14 @@ public class Tools {
 		return -1;
 	}
 
+	public static void run(ToolDescription desc) throws Exception {
+		int idx = getOsIndex(desc, OsUtil.getOS());
+
+		Runtime rt = Runtime.getRuntime();
+
+		Process process = rt.exec("cmd /c start cmd.exe /k \"" + desc.run_commands[idx] + "\"");
+	}
+
 	public static void install(ToolDescription desc, List<ToolDescription> installed_list) throws Exception {
 		if (downloading == null) {
 			int idx = getOsIndex(desc, OsUtil.getOS());
@@ -163,13 +208,11 @@ public class Tools {
 			byte[] buffer = new byte[1024];
 			double downloaded = 0.0;
 			int read = 0;
-			double downloaded_percentage = 0.0;
+			downloaded_percentage = 0.0;
 			while ((read = input.read(buffer, 0, 1024)) >= 0) {
 				output.write(buffer, 0, read);
 				downloaded += read;
 				downloaded_percentage = downloaded * 100 / file_size;
-				String s = String.format("%.4f", downloaded_percentage);
-				System.out.println(s);
 			}
 			input.close();
 			output.close();
@@ -184,12 +227,27 @@ public class Tools {
 		float y = startY;
 		boolean shift_next = false;
 		for (ToolDescription desc : Tools.tools) {
+			if (desc == downloading) {
+				desc.i_progress_quad.target_size.x = ((float) downloaded_percentage * 2.f);
+				desc.download_coyote = 1000; // keep download widget up for 1000 more frames
+			} else {
+				if (desc.download_coyote != 0)
+					desc.download_coyote --;
+				else {
+					desc.i_progress_quad.target_size.x = 0;
+					desc.i_progress_quad.size.x = 0;
+				}
+			}
+
 			if (shift_next) {
 				if (!desc.was_pushed) {
 					desc.label_ypos_target += 50;
 					desc.back_quad.target_pos.y += 50;
 					desc.status_quad.target_pos.y += 50;
 					desc.install_quad.target_pos.y += 50;
+					desc.run_quad.target_pos.y += 50;
+					desc.i_progress_quad.target_pos.y += 50;
+					desc.i_progress_bg_quad.target_pos.y += 50;
 					desc.was_pushed = true;
 				}
 			} else {
@@ -198,6 +256,9 @@ public class Tools {
 					desc.back_quad.target_pos.y -= 50;
 					desc.status_quad.target_pos.y -= 50;
 					desc.install_quad.target_pos.y -= 50;
+					desc.run_quad.target_pos.y -= 50;
+					desc.i_progress_quad.target_pos.y -= 50;
+					desc.i_progress_bg_quad.target_pos.y -= 50;
 					desc.was_pushed = false;
 				}
 			}
@@ -231,10 +292,23 @@ public class Tools {
 			if (desc.back_quad.testPoint(Input.mouseX, Input.mouseY)) {
 				if (desc.install_quad.testPoint(Input.mouseX, Input.mouseY)) {
 					if (Input.mouseButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
-						install(desc, installed);
+						if (!newest)
+							install(desc, installed);
 					}
-					desc.install_quad.color.set(0.25f, 0.25f, 0.25f, 1.0f);
+					if (!newest) {
+						desc.install_quad.color.set(0.25f, 0.25f, 0.25f, 1.0f);
+					}
 					desc.back_quad.color.set(0.15f, 0.15f, 0.15f, 1.0f);
+					desc.run_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
+				} else if (desc.run_quad.testPoint(Input.mouseX, Input.mouseY)) {
+					if (Input.mouseButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
+						if (!(desc == downloading || desc.download_coyote != 0) && (newest || older)) {
+							run(desc);
+						}
+					}
+					desc.back_quad.color.set(0.15f, 0.15f, 0.15f, 1.0f);
+					desc.install_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
+					desc.run_quad.color.set(0.25f, 0.25f, 0.25f, 1.0f);
 				} else {
 					if (Input.mouseButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
 						if (current == desc)
@@ -243,10 +317,12 @@ public class Tools {
 					}
 					desc.install_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
 					desc.back_quad.color.set(0.25f, 0.25f, 0.25f, 1.0f);
+					desc.run_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
 				}
 			} else {
 				desc.back_quad.color.set(0.15f, 0.15f, 0.15f, 1.0f);
 				desc.install_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
+				desc.run_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
 			}
 
 			renderer.drawQuad(desc.back_quad);
@@ -254,13 +330,24 @@ public class Tools {
 			renderer.drawQuad(desc.install_quad);
 			{
 				if (newest) {
-					renderer.drawString(inconsolata_smaller, "Update", 1080 - 70, desc.label_ypos, 1080, new Vector4f(0.6f, 0.6f, 0.6f, 1.0f));
+					renderer.drawString(inconsolata_smaller, "Update", 1080 - 70, desc.label_ypos, 1080, new Vector4f(0.4f, 0.4f, 0.4f, 1.0f));
 				} else if (older) {
 					renderer.drawString(inconsolata_smaller, "Update", 1080 - 70, desc.label_ypos, 1080, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 				} else {
 					renderer.drawString(inconsolata_smaller, "Install", 1080 - 75, desc.label_ypos, 1080, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 				}
 			}
+
+			if (desc == downloading || desc.download_coyote != 0) {
+				renderer.drawQuad(desc.i_progress_bg_quad);
+				renderer.drawQuad(desc.i_progress_quad);
+			} else {
+				if (newest || older) {
+					renderer.drawQuad(desc.run_quad);
+					renderer.drawString(inconsolata_smaller, "Run", 1080 - 130, desc.label_ypos, new Vector4f(1.f, 1.f, 1.f, 1.f));
+				}
+			}
+
 			if (current == desc) {
 				renderer.drawString(inconsolata_smaller, desc.desc, 50, desc.label_ypos + 30, new Vector4f(0.9f, 0.9f, 0.9f, 1.0f));
 			}
