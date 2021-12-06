@@ -144,8 +144,8 @@ public class Tools {
 			e.printStackTrace();
 		}
 
-		inconsolata = new TTFont("src/main/resources/Inconsolata.ttf", 30);
-		inconsolata_smaller = new TTFont("src/main/resources/Inconsolata.ttf", 15);
+		inconsolata = new TTFont("Inconsolata.ttf", 30);
+		inconsolata_smaller = new TTFont("Inconsolata.ttf", 15);
 		current = null;
 	}
 
