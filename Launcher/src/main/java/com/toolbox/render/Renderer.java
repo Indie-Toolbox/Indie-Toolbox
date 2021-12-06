@@ -3,7 +3,6 @@ package com.toolbox.render;
 import com.toolbox.font.TTFont;
 import com.toolbox.util.Rect;
 import org.joml.Vector4f;
-import org.lwjgl.stb.STBTTBakedChar;
 import org.lwjgl.stb.STBTTPackedchar;
 
 import java.util.ArrayList;

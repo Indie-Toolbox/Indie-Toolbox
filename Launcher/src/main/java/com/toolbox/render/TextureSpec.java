@@ -1,7 +1,6 @@
 package com.toolbox.render;
 
 import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.opengl.GL44.GL_MIRROR_CLAMP_TO_EDGE;
 
 /**
  * <h1>Azurite</h1>
@@ -115,7 +114,6 @@ public class TextureSpec {
 	 */
 	public enum TextureWrapFilterType {
 		CLAMP_TO_EDGE(GL_CLAMP_TO_EDGE),
-		MIRROR_CLAMP_TO_EDGE(GL_MIRROR_CLAMP_TO_EDGE),
 		CLAMP_TO_BORDER(GL_CLAMP_TO_BORDER),
 		REPEAT(GL_REPEAT),
 		MIRRORED_REPEAT(GL_MIRRORED_REPEAT);
