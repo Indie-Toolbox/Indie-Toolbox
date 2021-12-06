@@ -47,6 +47,7 @@ public class LaunchToolbox {
 			boolean set = false;
 			// Use cache if exists
 			File in_f = new File(OsUtil.getToolboxFilepath() + "tool_list_cache.json");
+			in_f.getParentFile().mkdirs();
 			if (in_f.exists()) {
 				BufferedReader input = new BufferedReader(new FileReader(in_f));
 
