@@ -22,8 +22,6 @@ public class Input {
 	public static boolean mouseDragged;
 	public static byte[] keystateBitfields;
 	private static long window;
-	private static int _button;
-	private static int _action;
 
 	static {
 		keystateBitfields = new byte[400];
@@ -36,8 +34,6 @@ public class Input {
 			scrollX = (float) xOffset;
 			scrollY = (float) yOffset;
 			mouseScroll = new Vector2f(scrollX, scrollY);
-
-			Events.mouseScrollEvent.onEvent(new EventData.MouseScrollEventData(xOffset, yOffset));
 		});
 
 		glfwSetMouseButtonCallback(window, (w, button, action, mods) -> {
@@ -50,30 +46,34 @@ public class Input {
 					mouseDragged = false;
 				}
 			}
-
-			Events.mouseButtonEvent.onEvent(new EventData.MouseButtonEventData(button, action, mods));
 		});
 
 		glfwSetKeyCallback(window, (w, keycode, scancode, action, mods) -> {
-			switch (action) {
-				case GLFW_PRESS -> {
-					setKeyDownBit(keycode);
-					resetKeyUpBit(keycode);
-					resetKeyHeldBit(keycode);
-				}
-				case GLFW_RELEASE -> {
-					resetKeyDownBit(keycode);
-					setKeyUpBit(keycode);
-					resetKeyHeldBit(keycode);
-				}
-				case GLFW_REPEAT -> {
-					resetKeyDownBit(keycode);
-					resetKeyUpBit(keycode);
-					setKeyHeldBit(keycode);
+			if (keycode >= 0 && keycode <= 400) {
+				switch (action) {
+					case GLFW_PRESS -> {
+						setKeyDownBit(keycode);
+						resetKeyUpBit(keycode);
+						resetKeyHeldBit(keycode);
+					}
+					case GLFW_RELEASE -> {
+						resetKeyDownBit(keycode);
+						setKeyUpBit(keycode);
+						resetKeyHeldBit(keycode);
+					}
+					case GLFW_REPEAT -> {
+						resetKeyDownBit(keycode);
+						resetKeyUpBit(keycode);
+						setKeyHeldBit(keycode);
+					}
 				}
 			}
+		});
 
-			Events.keyEvent.onEvent(new EventData.KeyEventData(keycode, scancode, action, mods));
+		glfwSetScrollCallback(window, (window1, xoffset, yoffset) -> {
+			scrollX = (float) xoffset;
+			scrollY = (float) yoffset;
+			mouseScroll = new Vector2f(scrollX, scrollY);
 		});
 	}
 

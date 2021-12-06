@@ -21,6 +21,8 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class LaunchToolbox {
 	private static final boolean useLocal = false;
+	private static float scroll = 0.000f;
+	private static float scroll_target = 0.000f;
 
 	public static void main(String[] args) throws Exception {
 		glfwInit();
@@ -124,10 +126,11 @@ public class LaunchToolbox {
 		Matrix4f proj = new Matrix4f();
 		proj.ortho(0, 1080, 720, 0, -1, 1000);
 
+		Matrix4f view = new Matrix4f();
+
 		Shader shader = new Shader("src/main/resources/shader");
 		shader.bind();
 		shader.uploadIntArray("u_TextureSlots", new int[]{0, 1, 2, 3, 4, 5, 6, 7});
-		shader.uploadMatrix("u_Projection", proj);
 
 		Renderer renderer = new Renderer();
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -144,6 +147,13 @@ public class LaunchToolbox {
 			prev = now;
 			now = glfwGetTime();
 			delta = (float) (now - prev);
+			scroll_target -= Input.scrollY * 100 * delta;
+			scroll += (scroll_target - scroll) * 10 * delta;
+			scroll_target = scroll_target < 0 ? 0 : scroll_target;
+
+			view.identity();
+			view.translate(0, scroll, 0);
+			shader.uploadMatrix("u_Projection", view.mul(proj));
 
 			glClear(GL_COLOR_BUFFER_BIT);
 
