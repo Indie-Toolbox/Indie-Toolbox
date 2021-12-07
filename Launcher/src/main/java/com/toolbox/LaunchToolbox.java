@@ -29,7 +29,7 @@ public class LaunchToolbox {
 	public static void main(String[] args) throws Exception {
 		glfwInit();
 		glfwWindowHint(GLFW_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_VERSION_MINOR, 0);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		long window = glfwCreateWindow(1080, 720, "Indiedev Toolbox", 0, 0);
