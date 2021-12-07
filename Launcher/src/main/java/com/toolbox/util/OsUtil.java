@@ -35,7 +35,7 @@ public class OsUtil {
 				path = Paths.get("C:/toolbox/toollist.txt");
 			}
 			case Linux -> {
-				path = Paths.get("/opt/toolbox/toollist.txt");
+				path = Paths.get("/usr/local/bin/toolbox/toollist.txt");
 			}
 		}
 		return Files.exists(path);
@@ -49,7 +49,7 @@ public class OsUtil {
 				path = "C:/toolbox/toollist.txt";
 			}
 			case Linux -> {
-				path = "/opt/toolbox/toollist.txt";
+				path = "/usr/local/bin/toolbox/toollist.txt";
 			}
 		}
 		File file = new File(path);
@@ -66,7 +66,7 @@ public class OsUtil {
 				path = "C:/toolbox/" + name + "/";
 			}
 			case Linux -> {
-				path = "/opt/toolbox/" + name + "/";
+				path = "/usr/local/bin/toolbox/" + name + "/";
 			}
 		}
 		return path;
@@ -80,7 +80,7 @@ public class OsUtil {
 				path = "C:/toolbox/";
 			}
 			case Linux -> {
-				path = "/opt/toolbox/";
+				path = "/usr/local/bin/toolbox/";
 			}
 		}
 		return path;
@@ -94,7 +94,7 @@ public class OsUtil {
 				path = "C:/toolbox/toollist.txt";
 			}
 			case Linux -> {
-				path = "/opt/toolbox/toollist.txt";
+				path = "/usr/local/bin/toolbox/toollist.txt";
 			}
 		}
 		File file = new File(path);
@@ -109,7 +109,7 @@ public class OsUtil {
 				path = "C:/toolbox/toollist.txt";
 			}
 			case Linux -> {
-				path = "/opt/toolbox/toollist.txt";
+				path = "/usr/local/bin/toolbox/toollist.txt";
 			}
 		}
 		File file = new File(path);

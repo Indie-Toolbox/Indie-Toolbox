@@ -11,7 +11,7 @@
     ],
     "run": {
       "Windows": "python C:/toolbox/p5pj/p5pj-windows.py",
-      "Linux": "python3 opt/toolbox/p5pj/p5pj-linux.py"
+      "Linux": "python3 /usr/local/bin/toolbox/p5pj/p5pj-linux.py"
     },
     "file": {
       "Windows": "p5pj-windows.py",
