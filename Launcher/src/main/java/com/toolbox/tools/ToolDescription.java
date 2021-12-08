@@ -21,6 +21,7 @@ public class ToolDescription {
 	public Quad status_quad;
 	public Quad install_quad;
 	public Quad run_quad;
+	public Quad delete_quad;
 	public Quad i_progress_quad;
 	public Quad i_progress_bg_quad;
 	public boolean was_pushed = false;
@@ -78,6 +79,7 @@ public class ToolDescription {
 		status_quad.step(dt);
 		install_quad.step(dt);
 		run_quad.step(dt);
+		delete_quad.step(dt);
 		i_progress_quad.step(dt);
 		i_progress_bg_quad.step(dt);
 		label_ypos += (label_ypos_target - label_ypos) * 20 * dt;

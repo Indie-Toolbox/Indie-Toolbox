@@ -25,9 +25,9 @@ public class Tools {
 	public static TTFont inconsolata_smaller;
 	private static ToolDescription current;
 
-	private static volatile ToolDescription downloading;
+	private static volatile ToolDescription processing;
 	private static volatile String prj_name;
-	private static volatile double downloaded_percentage;
+	private static volatile double processed_percentage;
 
 	public static void load(String src) {
 		tools.clear();
@@ -113,6 +113,18 @@ public class Tools {
 				toolDescription.run_quad.color = new Vector4f(0.18f, 0.18f, 0.18f, 1.0f);
 				toolDescription.run_quad.rounding = 2;
 
+				toolDescription.delete_quad = new Quad();
+				toolDescription.delete_quad.pos.x = 1080 - 220;
+				toolDescription.delete_quad.pos.y = y - 20;
+				toolDescription.delete_quad.size.x = 60;
+				toolDescription.delete_quad.size.y = 30;
+				toolDescription.delete_quad.target_pos.x = toolDescription.delete_quad.pos.x;
+				toolDescription.delete_quad.target_pos.y = toolDescription.delete_quad.pos.y;
+				toolDescription.delete_quad.target_size.x = toolDescription.delete_quad.size.x;
+				toolDescription.delete_quad.target_size.y = toolDescription.delete_quad.size.y;
+				toolDescription.delete_quad.color = new Vector4f(0.18f, 0.18f, 0.18f, 1.0f);
+				toolDescription.delete_quad.rounding = 2;
+
 				toolDescription.label_ypos = y;
 				toolDescription.label_ypos_target = y;
 
@@ -168,7 +180,7 @@ public class Tools {
 	}
 
 	public static void install(ToolDescription desc, List<ToolDescription> installed_list, boolean is_update) throws Exception {
-		if (downloading == null) {
+		if (processing == null) {
 			int idx = getOsIndex(desc, OsUtil.getOS());
 			if (idx == -1) {
 				// Temporary
@@ -177,8 +189,8 @@ public class Tools {
 			}
 
 			prj_name = desc.name;
+			processing = desc;
 
-			downloading = desc;
 			// download to file
 			System.out.println("Downloading: " + desc.files[idx]);
 			new Thread(Tools::download).start();
@@ -197,14 +209,14 @@ public class Tools {
 
 	private static void download() {
 		try {
-			int idx = getOsIndex(downloading, OsUtil.getOS());
-			String url_s = downloading.github_link + "/releases/download/" + downloading.version + "/" + downloading.files[idx];
+			int idx = getOsIndex(processing, OsUtil.getOS());
+			String url_s = processing.github_link + "/releases/download/" + processing.version + "/" + processing.files[idx];
 
 			URL url = new URL(url_s);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			long file_size = connection.getContentLengthLong();
 			BufferedInputStream input = new BufferedInputStream(connection.getInputStream());
-			File out_f = new File(OsUtil.getDownloadFilepath(prj_name) + downloading.files[idx]);
+			File out_f = new File(OsUtil.getDownloadFilepath(prj_name) + processing.files[idx]);
 			System.out.println(out_f);
 			out_f.getParentFile().mkdirs();
 			FileOutputStream output_file = new FileOutputStream(out_f);
@@ -212,18 +224,66 @@ public class Tools {
 			byte[] buffer = new byte[1024];
 			double downloaded = 0.0;
 			int read = 0;
-			downloaded_percentage = 0.0;
+			processed_percentage = 0.0;
 			while ((read = input.read(buffer, 0, 1024)) >= 0) {
 				output.write(buffer, 0, read);
 				downloaded += read;
-				downloaded_percentage = downloaded * 100 / file_size;
+				processed_percentage = downloaded * 100 / file_size;
 			}
 			input.close();
 			output.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		downloading = null;
+		processing = null;
+		prj_name = null;
+	}
+
+	public static void delete(ToolDescription desc, List<ToolDescription> installed_list) throws Exception {
+		int idx = getOsIndex(desc, OsUtil.getOS());
+		if (idx == -1) {
+			// Temporary
+			System.err.println("Tool doesn't support " + OsUtil.getOS().name());
+			return;
+		}
+
+		prj_name = desc.name;
+		processing = desc;
+		System.out.println("Deleting: " + desc.files[idx]);
+		new Thread(Tools::deleteFolder).start();
+
+		int index_to_remove = -1;
+		for (int i = 0, installed_listSize = installed_list.size(); i < installed_listSize; i++) {
+			ToolDescription toolDescription = installed_list.get(i);
+			if (toolDescription.name.equals(desc.name)) {
+				index_to_remove = i;
+				break;
+			}
+		}
+		if (index_to_remove != -1)
+			installed_list.remove(index_to_remove);
+	}
+
+	private static void deleteFolder() {
+		try {
+			int idx = getOsIndex(processing, OsUtil.getOS());
+			File base_folder = new File(OsUtil.getToolboxFilepath() + processing.name);
+			if (!base_folder.isDirectory()) throw new IOException("Trying to delete non existent directory. Launcher error!!");
+			File[] files = base_folder.listFiles();
+			if (files != null) {
+				int sz = files.length;
+				int i = 0;
+				for (File file : files) {
+					file.delete();
+					i++;
+					processed_percentage = (float)i / (float)sz;
+				}
+			}
+			base_folder.delete();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		processing = null;
 		prj_name = null;
 	}
 
@@ -231,12 +291,12 @@ public class Tools {
 		float y = startY;
 		boolean shift_next = false;
 		for (ToolDescription desc : Tools.tools) {
-			if (desc == downloading) {
-				desc.i_progress_quad.target_size.x = ((float) downloaded_percentage * 2.f);
+			if (desc == processing) {
+				desc.i_progress_quad.target_size.x = ((float) processed_percentage * 2.f);
 				desc.download_coyote = 1000; // keep download widget up for 1000 more frames
 			} else {
 				if (desc.download_coyote != 0)
-					desc.download_coyote --;
+					desc.download_coyote--;
 				else {
 					desc.i_progress_quad.target_size.x = 0;
 					desc.i_progress_quad.size.x = 0;
@@ -249,6 +309,7 @@ public class Tools {
 					desc.back_quad.target_pos.y += 50;
 					desc.status_quad.target_pos.y += 50;
 					desc.install_quad.target_pos.y += 50;
+					desc.delete_quad.target_pos.y += 50;
 					desc.run_quad.target_pos.y += 50;
 					desc.i_progress_quad.target_pos.y += 50;
 					desc.i_progress_bg_quad.target_pos.y += 50;
@@ -260,6 +321,7 @@ public class Tools {
 					desc.back_quad.target_pos.y -= 50;
 					desc.status_quad.target_pos.y -= 50;
 					desc.install_quad.target_pos.y -= 50;
+					desc.delete_quad.target_pos.y -= 50;
 					desc.run_quad.target_pos.y -= 50;
 					desc.i_progress_quad.target_pos.y -= 50;
 					desc.i_progress_bg_quad.target_pos.y -= 50;
@@ -304,15 +366,27 @@ public class Tools {
 					}
 					desc.back_quad.color.set(0.15f, 0.15f, 0.15f, 1.0f);
 					desc.run_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
+					desc.delete_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
 				} else if (desc.run_quad.testPoint(Input.mouseX, Input.mouseY + scroll) && (newest || older)) {
 					if (Input.mouseButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
-						if (!(desc == downloading || desc.download_coyote != 0) && (newest || older)) {
+						if (!(desc == processing || desc.download_coyote != 0) && (newest || older)) {
 							run(desc);
 						}
 					}
 					desc.back_quad.color.set(0.15f, 0.15f, 0.15f, 1.0f);
 					desc.install_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
 					desc.run_quad.color.set(0.25f, 0.25f, 0.25f, 1.0f);
+					desc.delete_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
+				} else if (desc.delete_quad.testPoint(Input.mouseX, Input.mouseY + scroll) && (newest || older)) {
+					if (Input.mouseButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
+						if (!(desc == processing || desc.download_coyote != 0) && (newest || older)) {
+							delete(desc, installed);
+						}
+					}
+					desc.back_quad.color.set(0.15f, 0.15f, 0.15f, 1.0f);
+					desc.install_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
+					desc.run_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
+					desc.delete_quad.color.set(0.25f, 0.25f, 0.25f, 1.0f);
 				} else {
 					if (Input.mouseButtonDown(GLFW.GLFW_MOUSE_BUTTON_LEFT)) {
 						if (current == desc)
@@ -322,11 +396,13 @@ public class Tools {
 					desc.install_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
 					desc.back_quad.color.set(0.25f, 0.25f, 0.25f, 1.0f);
 					desc.run_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
+					desc.delete_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
 				}
 			} else {
 				desc.back_quad.color.set(0.15f, 0.15f, 0.15f, 1.0f);
 				desc.install_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
 				desc.run_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
+				desc.delete_quad.color.set(0.18f, 0.18f, 0.18f, 1.0f);
 			}
 
 			renderer.drawQuad(desc.back_quad);
@@ -342,13 +418,15 @@ public class Tools {
 				}
 			}
 
-			if (desc == downloading || desc.download_coyote != 0) {
+			if (desc == processing || desc.download_coyote != 0) {
 				renderer.drawQuad(desc.i_progress_bg_quad);
 				renderer.drawQuad(desc.i_progress_quad);
 			} else {
 				if (newest || older) {
 					renderer.drawQuad(desc.run_quad);
+					renderer.drawQuad(desc.delete_quad);
 					renderer.drawString(inconsolata_smaller, "Run", 1080 - 130, desc.label_ypos, new Vector4f(1.f, 1.f, 1.f, 1.f));
+					renderer.drawString(inconsolata_smaller, "Delete", 1080 - 210, desc.label_ypos, 1080, new Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 				}
 			}
 

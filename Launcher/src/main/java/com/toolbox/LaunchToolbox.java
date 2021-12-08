@@ -66,7 +66,8 @@ public class LaunchToolbox {
 				set = true;
 			} else {
 				downloadList();
-				Tools.load(downloaded_content);
+				if (!downloaded_content.equals(""))
+					Tools.load(downloaded_content);
 			}
 			installedToolFileRefresh(installed);
 			if (set) new Thread(LaunchToolbox::downloadList).start();
@@ -113,17 +114,17 @@ public class LaunchToolbox {
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			renderer.immediateBegin();
-			Tools.render(renderer, delta, installed, scroll_target * 360);
+			Tools.render(renderer, delta, installed, scroll * 360);
 			renderer.immediateEnd();
 
 			glfwSwapBuffers(window);
 		}
 
+		BufferedWriter wr = OsUtil.openInstalledToolsFile();
 		for (ToolDescription desc : installed) {
-			BufferedWriter wr = OsUtil.openInstalledToolsFile();
 			wr.append(desc.name).append(':').append(desc.version).append(System.lineSeparator());
-			wr.close();
 		}
+		wr.close();
 
 		shader.unbind();
 		glfwDestroyWindow(window);
