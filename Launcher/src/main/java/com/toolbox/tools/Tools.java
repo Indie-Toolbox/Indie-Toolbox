@@ -176,7 +176,27 @@ public class Tools {
 
 		Runtime rt = Runtime.getRuntime();
 
-		Process process = rt.exec("cmd /c start cmd.exe /k \"" + desc.run_commands[idx] + "\"");
+		OsUtil.OS os = OsUtil.getOS();
+		switch (os) {
+			case Windows: {
+				Process process = rt.exec("cmd /c start cmd.exe /k \"" + desc.run_commands[idx] + "\"");
+			}
+			case Linux: {
+				String[][] terminals = {
+						{"gnome-terminal", "--"},
+						{"xterm", "-e"},
+						{"konsole", "-e"}
+				};
+				for (String[] i : terminals) {
+					try {
+						Process process = new ProcessBuilder(i[0], i[1], desc.run_commands[idx]).start();
+						System.out.println("Successfully launched using " + i[0]);
+					} catch (Exception e) {
+						System.out.println("Failed to launch using " + i[0]);
+					}
+				}
+			}
+		}
 	}
 
 	public static void install(ToolDescription desc, List<ToolDescription> installed_list, boolean is_update) throws Exception {

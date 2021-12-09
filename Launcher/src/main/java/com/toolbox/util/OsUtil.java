@@ -35,7 +35,7 @@ public class OsUtil {
 				path = Paths.get("C:/toolbox/toollist.txt");
 			}
 			case Linux -> {
-				path = Paths.get("~/.toolboxlauncher/toollist.txt");
+				path = Paths.get(System.getProperty("user.home") + "/.toolboxlauncher/toollist.txt");
 			}
 		}
 		return Files.exists(path);
@@ -49,7 +49,7 @@ public class OsUtil {
 				path = "C:/toolbox/toollist.txt";
 			}
 			case Linux -> {
-				path = "~/.toolboxlauncher/toollist.txt";
+				path = System.getProperty("user.home") + "/.toolboxlauncher/toollist.txt";
 			}
 		}
 		File file = new File(path);
@@ -66,7 +66,7 @@ public class OsUtil {
 				path = "C:/toolbox/" + name + "/";
 			}
 			case Linux -> {
-				path = "~/.toolboxlauncher/" + name + "/";
+				path = System.getProperty("user.home") + "/.toolboxlauncher/" + name + "/";
 			}
 		}
 		return path;
@@ -80,7 +80,7 @@ public class OsUtil {
 				path = "C:/toolbox/";
 			}
 			case Linux -> {
-				path = "~/.toolboxlauncher/";
+				path = System.getProperty("user.home") + "/.toolboxlauncher/";
 			}
 		}
 		return path;
@@ -94,7 +94,7 @@ public class OsUtil {
 				path = "C:/toolbox/toollist.txt";
 			}
 			case Linux -> {
-				path = "~/.toolboxlauncher/toollist.txt";
+				path = System.getProperty("user.home") + "/.toolboxlauncher/toollist.txt";
 			}
 		}
 		File file = new File(path);
@@ -109,7 +109,7 @@ public class OsUtil {
 				path = "C:/toolbox/toollist.txt";
 			}
 			case Linux -> {
-				path = "~/.toolboxlauncher/toollist.txt";
+				path = System.getProperty("user.home") + "/.toolboxlauncher/toollist.txt";
 			}
 		}
 		File file = new File(path);
