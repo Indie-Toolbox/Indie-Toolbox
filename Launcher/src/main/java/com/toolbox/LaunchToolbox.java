@@ -28,14 +28,23 @@ public class LaunchToolbox {
 
 	public static void main(String[] args) throws Exception {
 		glfwInit();
-		glfwWindowHint(GLFW_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_VERSION_MINOR, 0);
+		
+		if (OsUtil.getOS() == OsUtil.OS.Mac) {
+			// 330 Core for mac OS
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		} else {
+			// Everyone else using 300
+			glfwWindowHint(GLFW_VERSION_MAJOR, 3);
+			glfwWindowHint(GLFW_VERSION_MINOR, 0);
+		}
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		long window = glfwCreateWindow(1080, 720, "Indiedev Toolbox", 0, 0);
 		glfwMakeContextCurrent(window);
 		GL.createCapabilities();
-
 		Input.setup(window);
 
 		Texture.initializeTextures();
