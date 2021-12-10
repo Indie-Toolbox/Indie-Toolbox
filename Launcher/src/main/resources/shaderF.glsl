@@ -29,18 +29,19 @@ float roundCorners() {
 	return boolean * cornerAlpha + (1. - boolean);
 }
 
+out vec4 fragColor;
 void main() {
 	int index = int(v_TexIndex);
 	switch (index) {
-		case 0: gl_FragColor = texture(u_TextureSlots[0], v_TexCoord); break;
-		case 1: gl_FragColor = texture(u_TextureSlots[1], v_TexCoord); break;
-		case 2: gl_FragColor = texture(u_TextureSlots[2], v_TexCoord); break;
-		case 3: gl_FragColor = texture(u_TextureSlots[3], v_TexCoord); break;
-		case 4: gl_FragColor = texture(u_TextureSlots[4], v_TexCoord); break;
-		case 5: gl_FragColor = texture(u_TextureSlots[5], v_TexCoord); break;
-		case 6: gl_FragColor = texture(u_TextureSlots[6], v_TexCoord); break;
-		case 7: gl_FragColor = texture(u_TextureSlots[7], v_TexCoord); break;
+		case 0: fragColor = texture(u_TextureSlots[0], v_TexCoord); break;
+		case 1: fragColor = texture(u_TextureSlots[1], v_TexCoord); break;
+		case 2: fragColor = texture(u_TextureSlots[2], v_TexCoord); break;
+		case 3: fragColor = texture(u_TextureSlots[3], v_TexCoord); break;
+		case 4: fragColor = texture(u_TextureSlots[4], v_TexCoord); break;
+		case 5: fragColor = texture(u_TextureSlots[5], v_TexCoord); break;
+		case 6: fragColor = texture(u_TextureSlots[6], v_TexCoord); break;
+		case 7: fragColor = texture(u_TextureSlots[7], v_TexCoord); break;
 	}
-	gl_FragColor *= v_Colour;
-	gl_FragColor.a *= roundCorners();
+	fragColor *= v_Colour;
+	fragColor.a *= roundCorners();
 }
