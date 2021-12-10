@@ -179,7 +179,7 @@ public class Tools {
 		OsUtil.OS os = OsUtil.getOS();
 		switch (os) {
 			case Windows: {
-				Process process = rt.exec("cmd /c start cmd.exe /k \"" + desc.run_commands[idx] + "\"");
+				rt.exec("cmd /c start cmd.exe /k \"" + desc.run_commands[idx] + "\"");
 			}
 			case Linux: {
 				String[][] terminals = {
@@ -189,12 +189,21 @@ public class Tools {
 				};
 				for (String[] i : terminals) {
 					try {
-						Process process = new ProcessBuilder(i[0], i[1], desc.run_commands[idx]).start();
+						new ProcessBuilder(i[0], i[1], desc.run_commands[idx]).start();
 						System.out.println("Successfully launched using " + i[0]);
 					} catch (Exception e) {
 						System.out.println("Failed to launch using " + i[0]);
 					}
 				}
+			}
+			case Mac: {
+				String[] args = {
+					"osascript",
+					"-e", "tell application \"Terminal\" to activate",
+					"-e", "tell application \"Terminal\" to do script \"clear && " + desc.run_commands[idx] + ";exit\""
+				};
+
+				new ProcessBuilder(args).start();
 			}
 		}
 	}
