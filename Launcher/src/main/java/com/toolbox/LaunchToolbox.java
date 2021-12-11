@@ -185,7 +185,7 @@ public class LaunchToolbox {
 				URL url = new URL("https://raw.githubusercontent.com/Indie-Toolbox/Indie-Toolbox/main/tools.json");
 				tools_reader = new BufferedReader(new InputStreamReader(url.openStream()));
 			} else {
-				tools_reader = new BufferedReader(new FileReader("/Users/asher/Documents/code/Indie-Toolbox/tools.json"));
+				tools_reader = new BufferedReader(new FileReader("/home/asher/Documents/Indie-Toolbox/tools.json"));
 			}
 
 			File out_f = new File(OsUtil.getToolboxFilepath() + "tool_list_cache.json");
