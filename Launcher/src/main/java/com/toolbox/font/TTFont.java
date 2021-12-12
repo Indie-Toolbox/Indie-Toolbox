@@ -37,6 +37,7 @@ public class TTFont {
 		this.filepath = filepath;
 		this.size = size;
 		try {
+
 			cdata = STBTTPackedchar.calloc(96);
 			ByteBuffer data_buffer = ioResourceToByteBuffer(this.filepath, 512*1024);
 			STBTTFontinfo stb_font_info = STBTTFontinfo.create();
@@ -52,6 +53,7 @@ public class TTFont {
 				stbtt_PackEnd(stb_pack_ctx);
 
 				int id = glGenTextures();
+
 				glBindTexture(GL_TEXTURE_2D, id);
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 512, 512, 0, GL_RED, GL_UNSIGNED_BYTE, temp_bitmap);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

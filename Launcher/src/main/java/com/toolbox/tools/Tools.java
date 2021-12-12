@@ -171,31 +171,52 @@ public class Tools {
 		return -1;
 	}
 
-	public static void run(ToolDescription desc) throws Exception {
+	public static void run(ToolDescription desc) {
 		int idx = getOsIndex(desc, OsUtil.getOS());
 
 		Runtime rt = Runtime.getRuntime();
 
 		OsUtil.OS os = OsUtil.getOS();
-		switch (os) {
-			case Windows: {
-				Process process = rt.exec("cmd /c start cmd.exe /k \"" + desc.run_commands[idx] + "\"");
-			}
-			case Linux: {
-				String[][] terminals = {
-						{"gnome-terminal", "--"},
-						{"xterm", "-e"},
-						{"konsole", "-e"}
-				};
-				for (String[] i : terminals) {
-					try {
-						Process process = new ProcessBuilder(i[0], i[1], desc.run_commands[idx]).start();
-						System.out.println("Successfully launched using " + i[0]);
-					} catch (Exception e) {
-						System.out.println("Failed to launch using " + i[0]);
+		try {
+			switch (os) {
+				case Windows: {
+					rt.exec("cmd /c start cmd.exe /k \"" + desc.run_commands[idx] + "\"");
+					break;
+				}
+				case Linux: {
+					String cmd = desc.run_commands[idx].replaceAll("~", System.getProperty("user.home"));
+
+					String[][] terminals = {
+							{"gnome-terminal", "--"},
+							{"xterm", "-e"},
+							{"konsole", "-e"}
+					};
+
+					for (String[] i : terminals) {
+						try {
+							Process p = new ProcessBuilder(i[0], i[1], cmd).start();
+							return;
+						} catch (Exception e) {}
 					}
+					System.out.println("Failed to launch using default applications, please create an issue on GitHub.\nAttempted launch commands are:");
+					for (String[] i : terminals)
+						System.out.println(i[0] + " " + i[1] + " " + cmd);
+					break;
+				}
+				case Mac: {
+					String[] args = {
+							"osascript",
+							"-e", "tell application \"Terminal\" to activate",
+							"-e", "tell application \"Terminal\" to do script \"clear && " + desc.run_commands[idx] + ";exit\""
+					};
+
+					new ProcessBuilder(args).start();
+					break;
 				}
 			}
+		} catch (Exception e) {
+			System.out.println("Unable to launch on your system.");
+			e.printStackTrace();
 		}
 	}
 

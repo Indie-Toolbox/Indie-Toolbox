@@ -20,7 +20,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class LaunchToolbox {
-	private static final boolean useLocal = false;
+	private static final boolean useLocal = true;
 	private static float scroll = 0.000f;
 	private static float scroll_target = 0.000f;
 
@@ -28,14 +28,23 @@ public class LaunchToolbox {
 
 	public static void main(String[] args) throws Exception {
 		glfwInit();
-		glfwWindowHint(GLFW_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_VERSION_MINOR, 0);
+		
+		if (OsUtil.getOS() == OsUtil.OS.Mac) {
+			// 330 Core for mac OS
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		} else {
+			// Everyone else using 300
+			glfwWindowHint(GLFW_VERSION_MAJOR, 3);
+			glfwWindowHint(GLFW_VERSION_MINOR, 0);
+		}
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		long window = glfwCreateWindow(1080, 720, "Indiedev Toolbox", 0, 0);
 		glfwMakeContextCurrent(window);
 		GL.createCapabilities();
-
 		Input.setup(window);
 
 		Texture.initializeTextures();
@@ -176,7 +185,7 @@ public class LaunchToolbox {
 				URL url = new URL("https://raw.githubusercontent.com/Indie-Toolbox/Indie-Toolbox/main/tools.json");
 				tools_reader = new BufferedReader(new InputStreamReader(url.openStream()));
 			} else {
-				tools_reader = new BufferedReader(new FileReader("P:/Java/Projects/ToolboxLauncher/tools.json"));
+				tools_reader = new BufferedReader(new FileReader("/home/asher/Documents/Indie-Toolbox/tools.json"));
 			}
 
 			File out_f = new File(OsUtil.getToolboxFilepath() + "tool_list_cache.json");

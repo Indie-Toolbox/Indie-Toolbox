@@ -1,3 +1,4 @@
 Launcher/.gradle/
 Launcher/.idea/
 Launcher/build/
+*.class

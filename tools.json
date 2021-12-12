@@ -7,15 +7,18 @@
     "git": "https://github.com/pricter/p5pj",
     "supportedPlatforms": [
       "Windows",
-      "Linux"
+      "Linux",
+      "Mac"
     ],
     "run": {
       "Windows": "python C:/toolbox/p5pj/p5pj-windows.py",
-      "Linux": "python3 ~/.toolboxlauncher/p5pj/p5pj-linux.py"
+      "Linux": "python3 ~/.toolboxlauncher/p5pj/p5pj-linux.py",
+      "Mac": "python3 ~/.toolboxlauncher/p5pj/p5pj-linux.py"
     },
     "file": {
       "Windows": "p5pj-windows.py",
-      "Linux": "p5pj-linux.py"
+      "Linux": "p5pj-linux.py",
+      "Mac": "p5pj-linux.py"
     }
   }
 ]

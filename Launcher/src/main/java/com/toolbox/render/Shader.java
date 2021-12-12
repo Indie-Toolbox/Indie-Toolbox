@@ -5,6 +5,8 @@ import org.joml.Matrix4f;
 import java.io.*;
 import java.nio.FloatBuffer;
 
+import com.toolbox.util.OsUtil;
+
 import org.lwjgl.*;
 import static org.lwjgl.opengl.GL20.*;
 
@@ -22,11 +24,15 @@ public class Shader {
 			System.err.println(glGetProgramInfoLog(programID));
 			System.exit(-1);
 		}
-		glValidateProgram(programID);
-		if (glGetProgrami(programID, GL_VALIDATE_STATUS) != GL_TRUE) {
-			System.err.println(glGetProgramInfoLog(programID));
-			System.exit(-1);
+		if (OsUtil.getOS() != OsUtil.OS.Mac) {
+			// For now, unless there is a better solution, this does not work on mac OS using opengl 330 core.
+			glValidateProgram(programID);
+			if (glGetProgrami(programID, GL_VALIDATE_STATUS) != GL_TRUE) {
+				System.err.println(glGetProgramInfoLog(programID));
+				System.exit(-1);
+			}
 		}
+		
 		glDetachShader(programID, vsID);
 		glDetachShader(programID, fsID);
 		glDeleteShader(vsID);
