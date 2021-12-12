@@ -20,7 +20,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class LaunchToolbox {
-	private static final boolean useLocal = true;
+	private static final boolean useLocal = false;
 	private static float scroll = 0.000f;
 	private static float scroll_target = 0.000f;
 
