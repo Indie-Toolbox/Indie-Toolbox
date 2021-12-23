@@ -148,6 +148,16 @@ public class Tools {
 					toolDescription.files[i] = filename;
 				}
 
+				JSONObject installed_commands_platform = (JSONObject) tool.getOrDefault("install", null);
+				toolDescription.install_commands = new String[plats.size()][];
+				for (int i = 0; i < toolDescription.platforms.length; i++) {
+					JSONArray cmds = (JSONArray) installed_commands_platform.getOrDefault(toolDescription.platforms[i], "echo \"No Install Command Specified for tool for this OS\"");
+					toolDescription.install_commands[i] = new String[cmds.size()];
+					for (int c = 0; c < cmds.size(); c++) {
+						toolDescription.install_commands[i][c] = (String) cmds.get(c);
+					}
+				}
+
 				tools.add(toolDescription);
 
 				y += 60;
@@ -249,8 +259,8 @@ public class Tools {
 	}
 
 	private static void download() {
+		int idx = getOsIndex(processing, OsUtil.getOS());
 		try {
-			int idx = getOsIndex(processing, OsUtil.getOS());
 			String url_s = processing.github_link + "/releases/download/" + processing.version + "/" + processing.files[idx];
 
 			URL url = new URL(url_s);
@@ -276,6 +286,18 @@ public class Tools {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		// Run install command
+		for (int k = 0; k < processing.install_commands[idx].length; k++) {
+			String cmd = processing.install_commands[idx][k];
+			Runtime rt = Runtime.getRuntime();
+			try {
+				rt.exec(cmd);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 		processing = null;
 		prj_name = null;
 	}

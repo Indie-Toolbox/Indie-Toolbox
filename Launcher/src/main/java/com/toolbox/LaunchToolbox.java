@@ -20,7 +20,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class LaunchToolbox {
-	private static final boolean useLocal = false;
+	private static final boolean useLocal = true;
 	private static float scroll = 0.000f;
 	private static float scroll_target = 0.000f;
 
@@ -185,7 +185,7 @@ public class LaunchToolbox {
 				URL url = new URL("https://raw.githubusercontent.com/Indie-Toolbox/Indie-Toolbox/main/tools.json");
 				tools_reader = new BufferedReader(new InputStreamReader(url.openStream()));
 			} else {
-				tools_reader = new BufferedReader(new FileReader("/home/asher/Documents/Indie-Toolbox/tools.json"));
+				tools_reader = new BufferedReader(new FileReader("P:/Java/Projects/ToolboxLauncher/tools.json"));
 			}
 
 			File out_f = new File(OsUtil.getToolboxFilepath() + "tool_list_cache.json");

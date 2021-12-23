@@ -14,6 +14,7 @@ public class ToolDescription {
 	public String[] platforms;
 	public String[] run_commands;
 	public String[] files;
+	public String[][] install_commands;
 
 	public float label_ypos;
 	public float label_ypos_target;

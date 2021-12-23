@@ -10,6 +10,11 @@
       "Linux",
       "Mac"
     ],
+    "install": {
+      "Windows": [ "4ed" ],
+      "Linux": [],
+      "Mac": []
+    },
     "run": {
       "Windows": "python C:/toolbox/p5pj/p5pj-windows.py",
       "Linux": "python3 ~/.toolboxlauncher/p5pj/p5pj-linux.py",
