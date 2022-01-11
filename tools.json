@@ -25,5 +25,32 @@
       "Linux": "p5pj-linux.py",
       "Mac": "p5pj-linux.py"
     }
+  },
+   {
+    "name": "Lime",
+    "version": "1.0.1",
+    "title": "Lime",
+    "description": "Lightweight python ide",
+    "git": "https://github.com/DevStuffzz/Lime",
+    "supportedPlatforms": [
+      "Windows",
+      "Linux",
+      "Mac"
+    ],
+    "install": {
+      "Windows": [],
+      "Linux": [],
+      "Mac": []
+    },
+    "run": {
+      "Windows": "java -jar C:/toolbox/lime/Lime.jar",
+      "Linux": "java -jar ~/.toolboxlauncher/lime/Lime.jar",
+      "Mac": "java -jar ~/.toolboxlauncher/lime/Lime.jar"
+    },
+    "file": {
+      "Windows": "Lime.jar",
+      "Linux": "Lime.jar",
+      "Mac": "Lime.jar"
+    }
   }
 ]
